@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE provider>
+<provider version="1.0" id="readitlater">
+    <name>qtn_ril_title</name>
+    <short-description>qtn_ril_desc_short</short-description>
+    <translations>readitlater</translations>
+    <description>qtn_ril_desc</description>
+    <icon>icon-m-service-readitlater</icon>
+    <sign-up-link>hhttp://readitlaterlist.com/signup</sign-up-link>
+    <forgot-password-link>http://readitlaterlist.com/forgot/</forgot-password-link>
+    <account-setup>
+        <register type="formular"/>
+        <setting name="remember" type="boolean"/>
+        <setting name="username" type="username"/>
+        <authsession>
+            <validate method="readitlater" mechanism="ReadItLater" />
+            <method name="readitlater">
+                <mechanism name="ReadItLater"/>
+            </method>
+        </authsession>
+    </account-setup>
+</provider>

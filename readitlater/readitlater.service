@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<service id="readitlater">
+  <type>sharing</type>
+  <name>qtn_ril_title</name>
+  <description>qtn_ril_desc</description>
+  <short-description>qtn_ril_desc_short</short-description>
+  <icon>icon-m-service-readitlater</icon>
+  <provider>readitlater</provider>
+  <translations>readitlater</translations>
+
+  <template>
+    <setting name="enabled" type="b">true</setting>
+  </template>
+
+  <!-- Extension for upload -->
+  <webService version="0.1" uploadPlugin="readitlater" trcatalogs="readitlater">
+    <presentation>
+      <name id="qtn_ril_title">Read It Later</name>
+      <title/>
+      <description multiline="1" order="1" prefill="0">
+        <!-- <caption key="qtn_fbsh_post_to_profile">??Post to profile</caption>
+        <tooltip key="qtn_fbsh_whats_on_your_mind">??What's on your mind</tooltip>
+        -->
+        <formats>
+          <mime>text/x-uri</mime>
+          <mime>text/x-uri</mime>
+        </formats>
+      </description>
+    </presentation>
+    <media>
+      <formats>
+        <mime>text/x-uri</mime>
+        <mime>text/x-uri</mime>
+      </formats>
+    </media>
+  </webService>
+</service>
