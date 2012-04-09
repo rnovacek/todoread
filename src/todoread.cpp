@@ -31,13 +31,14 @@ TodoRead::TodoRead(int &argc, char **argv):
     m_view->rootContext()->setContextProperty("controller", m_controller);
 
     m_view->setOrientation(QmlApplicationViewer::ScreenOrientationAuto);
-    // Set qml source
-    QDir dir;
+    // Set qml source    
+    QDir dir(__FILE__);
     dir.cdUp();
-    dir.cd("todoread");
+    dir.cdUp();
     dir.cd("qml");
+    qDebug() << dir.absolutePath();
     if (dir.exists("main.qml")) {
-        m_view->setMainQmlFile(QString::fromLatin1("qml/main.qml"));
+        m_view->setMainQmlFile(dir.absoluteFilePath("main.qml"));
     } else {
         m_view->setMainQmlFile(QString::fromLatin1("/opt/todoread/qml/main.qml"));
     }
