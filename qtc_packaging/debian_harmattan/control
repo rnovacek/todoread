@@ -5,7 +5,6 @@ Maintainer: Radek Novacek <rad.n@centrum.cz>
 Build-Depends: debhelper (>= 5), libqt4-dev
 Standards-Version: 3.7.3
 Homepage: https://github.com/rnovacek/todoread
-Aegis-Manifest: included
 
 Package: todoread
 Architecture: any
