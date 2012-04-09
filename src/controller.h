@@ -8,8 +8,11 @@
 
 namespace SignOn {
 class AuthService;
+class AuthSession;
 class Error;
+class Identity;
 class IdentityInfo;
+class SessionData;
 }
 
 class QSettings;
@@ -41,11 +44,14 @@ public slots:
 private slots:
     void signOnError(const SignOn::Error &);
     void signOnIdentities(const QList<SignOn::IdentityInfo> &);
+    void identityResponse(const SignOn::SessionData &data);
 private:
     QDeclarativeView *m_view;
     QSettings *m_config;
     DownloadThread *m_downloadThread;
     SignOn::AuthService *m_authService;
+    SignOn::Identity *m_identity;
+    SignOn::AuthSession *m_session;
 };
 
 #endif // CONTROLLER_H

@@ -12,25 +12,36 @@
 #include <QDesktopServices>
 #include <QSignalMapper>
 #include <QUrl>
+#include <qplatformdefs.h>
 
+#ifdef MEEGO_EDITION_HARMATTAN
 #include <SignOn/AuthService>
+#include <SignOn/AuthSession>
+#include <SignOn/Error>
+#include <SignOn/Identity>
+#endif
 
 #include "globals.h"
 #include "downloadthread.h"
 
 Controller::Controller(QDeclarativeView *view, QSettings *config, QObject *parent) :
-    QObject(parent), m_view(view), m_config(config), m_downloadThread(new DownloadThread()),
-    m_authService(new SignOn::AuthService(this))
-{   
+    QObject(parent), m_view(view), m_config(config), m_downloadThread(new DownloadThread())
+#ifdef MEEGO_EDITION_HARMATTAN
+    , m_authService(new SignOn::AuthService(this))
+#endif
+{
     if (!isConfigured()) {
         // TODO: fix it
         //m_view->rootObject()->showLogin();
     }
 
+#ifdef MEEGO_EDITION_HARMATTAN
+#warning Compiling meego version
     connect(m_authService, SIGNAL(error(const SignOn::Error &)), SLOT(signOnError(const SignOn::Error &)));
     connect(m_authService, SIGNAL(identities(const QList<SignOn::IdentityInfo> &)), SLOT(signOnIdentities(const QList<SignOn::IdentityInfo> &)));
+    m_authService->clear();
     m_authService->queryIdentities();
-
+#endif
     // TODO: reading file
     /*
     m_markedFile = QFile(Global::MyDir().absoluteFilePath("marked.json"));
@@ -109,17 +120,42 @@ QString Controller::cacheFile()
 
 void Controller::signOnError(const SignOn::Error &error)
 {
+#ifdef MEEGO_EDITION_HARMATTAN
+    switch (error.type()) {
+    case SignOn::Error::InvalidCredentials:
+        m_identity->verifyUser("Authentication failed");
+        break;
+
+    }
+
     qDebug() << "Listing identites failed with error: " << error.message() << "(#" << error.type() << ")";
+#endif
 }
 
 void Controller::signOnIdentities(const QList<SignOn::IdentityInfo> &identities)
 {
-
+#ifdef MEEGO_EDITION_HARMATTAN
     for (int i = 0; i < identities.size(); i++) {
-        qDebug() << "Identity: username: " << identities.at(i).userName() <<
+        //identities.at(i)
+        if (identities.at(i).methods().contains("readitlater")) {
+            qDebug() << "Identity: username: " << identities.at(i).userName() <<
+                    " caption: " << identities.at(i).caption() <<
                     " realms: " << identities.at(i).realms() <<
                     " owner: " << identities.at(i).owner() <<
-                    " acl: " << identities.at(i).accessControlList();
+                    " acl: " << identities.at(i).accessControlList() <<
+                    " method: " << identities.at(i).methods();
+            m_identity = SignOn::Identity::existingIdentity(identities.at(i).id(), this);
+            m_session = m_identity->createSession(QLatin1String("readitlater"));
+            connect(m_session, SIGNAL(response(const SignOn::SessionData &)), SLOT(identityResponse(const SignOn::SessionData &)));
+            connect(m_session, SIGNAL(error(SignOn::Error)), SLOT(signOnError(SignOn::Error)));
+            m_session->process(SignOn::SessionData(), QLatin1String("ReadItLater"));
+            return;
+        }
     }
+#endif
 }
 
+void Controller::identityResponse(const SignOn::SessionData &data)
+{
+    qDebug() << "identityResponse: " << data.propertyNames();
+}
