@@ -68,20 +68,24 @@ ListModel {
 
     function sendRead(doDownload) {
         var readItems = new Array(), unreadItems = new Array();
+        var readIndex = 0, unreadIndex = 0;
         for (var id in Model.items) {
             var item = Model.items[id];
-            if (item.isRead !== item.isOrigRead) {
+            if (item.isRead != item.isOrigRead) {
                 if (item.isRead) {
+                    console.log("Marked as read: " + id + "\t" + item);
                     // Mark item as read
-                    readItems.push(item.origUrl);
+                    readItems.push('"' + readIndex + '":{"url":"' + item.origUrl + '"}');
+                    readIndex++;
                 } else {
-                    unreadItems.push(item.origUrl);
+                    console.log("Unmarked as read: " + id + "\t" + item);
+                    unreadItems.push('"' + unreadIndex + '":{"title":"' + item.title + '","url":"' + item.origUrl + '"}');
+                    unreadIndex++;
                 }
             }
         }
-        if (readItems.length > 0) {
-            // Send read items
-            console.log("Marking " + readItems.length + " items as read");
+        if (readItems.length > 0 || unreadItems.length > 0) {
+            // Send read/unread items
 
             var request = new XMLHttpRequest();
             request.onreadystatechange = function() {
@@ -100,11 +104,20 @@ ListModel {
             var password = ""
             var apikey = "926TnD0Vg5663lb9e7dc565vF9p4cW5a"
 
+            console.log("Read items dump: " + data)
+
             request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-            request.send("username=" + encodeURIComponent(username) +
+            var params = "username=" + encodeURIComponent(username) +
                          "&password=" + encodeURIComponent(password) +
-                         "&apikey=" + encodeURIComponent(apikey) +
-                         "&read=" +encodeURIComponent(readItems));
+                         "&apikey=" + encodeURIComponent(apikey)
+            if (readItems.length > 0) {
+                params += "&read=" + encodeURIComponent("{" + readItems.join(",") + "}");
+            }
+            if (unreadItems.length > 0) {
+                params += "&new=" + encodeURIComponent("{" + unreadItems.join(",") + "}");
+            }
+
+            request.send(params);
         } else {
             if (doDownload) {
                 download();

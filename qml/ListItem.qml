@@ -3,6 +3,8 @@ import QtQuick 1.1
 
 import com.nokia.meego 1.0
 
+import "ReadModel.js" as Model
+
 Rectangle {
     property string label: ""
     property string url
@@ -74,7 +76,7 @@ Rectangle {
             MenuItem {
                 text: model.isRead ? "Unmark as read" : "Mark as read"
                 onClicked: {
-                    tableView.model.set(index, {"isRead": !model.isRead});
+                    Model.setValue(model, "isRead", !model.isRead)
                 }
             }
             MenuItem {
