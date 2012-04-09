@@ -1,10 +1,10 @@
 
 TEMPLATE = subdirs
 
-SUBDIRS = src test
+SUBDIRS = src
 
 contains(MEEGO_EDITION,harmattan):{
-    SUBDIRS += readitlater
+    SUBDIRS += readitlater #test
 }
 
 qml.files = qml/*
