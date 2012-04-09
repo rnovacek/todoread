@@ -18,7 +18,9 @@ QT += gui
 
 CONFIG += link_pkgconfig qdeclarative-boostable qt-components
 
-PKGCONFIG += libsignon-qt
+contains(MEEGO_EDITION,harmattan):{
+    PKGCONFIG += libsignon-qt
+}
 
 # Please do not modify the following two lines. Required for deployment.
 include(qmlapplicationviewer/qmlapplicationviewer.pri)

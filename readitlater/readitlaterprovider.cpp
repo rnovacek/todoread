@@ -5,7 +5,6 @@
 
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
-#include <QDebug>
 
 ReadItLaterPlugin::ReadItLaterPlugin(QObject *parent) :
     AuthPluginInterface(parent), m_networkManager(new QNetworkAccessManager(this))
@@ -49,8 +48,6 @@ void ReadItLaterPlugin::process(const SignOn::SessionData &inData, const QString
 
         m_data = inData;
     }
-
-
 }
 
 void ReadItLaterPlugin::authenticationFinished()
@@ -88,7 +85,6 @@ void ReadItLaterPlugin::authenticationFinished()
         emit error(SignOn::Error(SignOn::Error::NotAuthorized, reply->errorString()));
         break;
     default:
-        qDebug() << "unkownError QNetworkReply: " << reply->error();
         emit error(SignOn::Error(SignOn::Error::Unknown, reply->errorString()));
         break;
     }

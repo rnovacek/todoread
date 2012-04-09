@@ -7,7 +7,7 @@ CONFIG += plugin qt debug signon-plugins link_pkgconfig
 
 QT += network
 
-PKGCONFIG += accounts-qt signon-qt signon-plugins
+PKGCONFIG += signon-plugins
 
 HEADERS += readitlaterprovider.h
 
