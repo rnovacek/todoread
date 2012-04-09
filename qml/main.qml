@@ -37,12 +37,10 @@ PageStackWindow {
     }
 
     Component.onDestruction: {
-        console.log("main::save");
         var array = new Array();
         var i, j;
         for (i in Model.items) {
             var item = Model.items[i];
-            console.log("Item: " + item)
             var subArray = new Array();
             for (j in item) {
                 console.log(j + "\t" + item[j]);
