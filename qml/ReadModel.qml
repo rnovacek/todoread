@@ -7,8 +7,11 @@ ListModel {
 
     property bool showRead: false
 
+    signal reloaded;
+
     function init() {
         showRead = controller.configValue("showRead", false);
+        Model.controller = controller;
     }
 
     function createModel(text) {
@@ -35,6 +38,7 @@ ListModel {
                 Model.items[id].index = -1;
             }
         }
+        reloaded();
     }
 
     function sync() {
@@ -99,12 +103,12 @@ ListModel {
             }
 
             request.open("POST", "https://readitlaterlist.com/v2/send", true);
-            // TODO: get it
-            var username = ""
-            var password = ""
-            var apikey = "926TnD0Vg5663lb9e7dc565vF9p4cW5a"
+            var username = controller.configValue("username", "");
+            var password = controller.configValue("password", "");
+            var apikey = "926TnD0Vg5663lb9e7dc565vF9p4cW5a";
 
-            console.log("Read items dump: " + data)
+            console.log("Logging in using " + username + " and " + password);
+            console.log("Read items dump: " + data);
 
             request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
             var params = "username=" + encodeURIComponent(username) +
@@ -141,10 +145,12 @@ ListModel {
          }
 
         request.open("POST", "https://readitlaterlist.com/v2/get", true);
-        // TODO: get it
-        var username = ""
-        var password = ""
-        var apikey = "926TnD0Vg5663lb9e7dc565vF9p4cW5a"
+        var username = controller.configValue("username", "");
+        var password = controller.configValue("password", "");
+        var apikey = "926TnD0Vg5663lb9e7dc565vF9p4cW5a";
+
+        console.log("Logging in using " + username + " and " + password);
+
         // TODO: Limit it by using timestamp
         request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
         request.send("username=" + encodeURIComponent(username) +

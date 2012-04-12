@@ -116,7 +116,16 @@ bool Controller::isDownloaded(int id)
     return Global::CacheDir().exists(QString("%1").arg(id));
 }
 
-void Controller::identityResponse(const SignOn::SessionData &data)
+QUrl Controller::getIcon(QString urlString)
 {
-    qDebug() << "identityResponse: " << data.propertyNames();
+    QUrl url(urlString);
+    QString iconPath = QString("%1.png").arg(url.host());
+    QString absPath = Global::CacheDir().absoluteFilePath(iconPath);
+    if (!Global::CacheDir().exists(iconPath)) {
+        QIcon icon = QWebSettings::iconForUrl(url);
+        QPixmap pixmap = icon.pixmap(32, 32);
+        pixmap.save(absPath);
+    }
+    qDebug() << "getIcon: " << absPath;
+    return QUrl::fromLocalFile(absPath);
 }

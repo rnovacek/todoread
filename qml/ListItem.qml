@@ -13,7 +13,7 @@ Rectangle {
     signal markAsRead(variant item)
     signal downloadRequest(variant item)
 
-    color: (index % 2 == 0) ? "white" : "gray"
+    color: (index % 2 == 0) ? "#dddddd" : "white"
     width: parent.width
     height: label.height * 2 + 10
 
@@ -31,13 +31,28 @@ Rectangle {
         }
     }
 
+    Image {
+        id: favicon
+        asynchronous: true
+        source: "http://www.google.com/s2/favicons?domain=" + model.origUrl.match(/:\/\/(.[^/]+)/)[1]
+        width: 32
+        height: 32
+        anchors {
+            top: parent.top
+            topMargin: parent.height / 2 - 16
+            left: downloadMark.right
+            leftMargin: 8
+        }
+    }
+
     Text {
         id: label
         elide: Text.ElideRight
         text: title
         font.bold: !model.isRead
+        font.pixelSize: 24
         anchors {
-            left: downloadMark.right
+            left: favicon.right
             right: parent.right
             top: parent.top
             leftMargin: 8
@@ -51,8 +66,9 @@ Rectangle {
         elide: Text.ElideRight
         text: origUrl
         color: "gray"
+        font.pixelSize: 24
         anchors {
-            left: downloadMark.right
+            left: favicon.right
             right: parent.right
             top: label.bottom
             leftMargin: 8

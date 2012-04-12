@@ -4,6 +4,8 @@ var items = new Array;
 
 var itemHash = new Object;
 
+var controller = new Object;
+
 function ReadItem(id, title, url, state) {
     this.id = id;
     this.title = title;
@@ -11,8 +13,11 @@ function ReadItem(id, title, url, state) {
     this.origUrl = url;
     this.isRead = state == 1;
     this.isOrigRead = this.isRead;
-    this.isDownloaded = false;
+    this.isDownloaded = controller.isDownloaded(id);
+    console.log("isDownloaded: " + this.isDownloaded)
     this.isDownloading = false;
+    this.iconUrl = String(controller.getIcon(url));
+    console.log("iconUrl: " + this.iconUrl)
     this.model = null;
     this.index = -1;
 

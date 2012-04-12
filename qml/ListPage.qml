@@ -15,16 +15,18 @@ Page {
     tools: ToolBarLayout {
         ToolIcon {
             iconId: "toolbar-refresh"
-            onClicked: model.sync()
+            onClicked: {
+                busyIndicator.running = true;
+                model.sync();
+            }
         }
         ToolIcon {
             iconId: "toolbar-directory-move-to"
             onClicked: {
                 var items = new Array();
                 for (var i = 0; i < tableView.model.count; i++) {
-                    items.push(tableView.model.get(i));
+                    model.downloadItem(tableView.model.get(i));
                 }
-                controller.downloadItems(items);
             }
         }
         ToolIcon {
@@ -60,6 +62,9 @@ Page {
                 reload();
                 controller.setConfigValue("showRead", showRead);
             }
+            onReloaded: {
+                busyIndicator.running = false;
+            }
         }
 
         delegate: ListItem {
@@ -70,6 +75,7 @@ Page {
         }
 
         Component.onCompleted: {
+            model.init();
             var dump = controller.load();
             Model.load(dump);
             model.reload();
@@ -77,5 +83,22 @@ Page {
     }
     ScrollDecorator {
         flickableItem: tableView
+    }
+    Rectangle {
+        id: busyIndicator
+        color: "#aeeeeeee"
+        property bool running: false
+        anchors.fill: parent
+        visible: false;
+        BusyIndicator {
+            id: indicator
+            anchors.centerIn: parent
+            running: false;
+            platformStyle: BusyIndicatorStyle { size: "large" }
+        }
+        onRunningChanged: {
+            indicator.running = running;
+            visible = running;
+        }
     }
 }

@@ -7,7 +7,8 @@ import "ReadModel.js" as Model
 PageStackWindow {
     id: rootWindow
 
-    //platformStyle: PageStackWindowStyle { id: defaultStyle }
+//    width: 480
+//    height: 480
 
     property int currentIndex: -1
     property variant currentItem: null
@@ -17,11 +18,6 @@ PageStackWindow {
         onOpenUrl: {
             openBrowser(index, item)
         }
-    }
-
-    function showLogin() {
-        console.log("showLogin")
-        pageStack.push(configPage)
     }
 
     function openBrowser(index, item) {
@@ -43,7 +39,6 @@ PageStackWindow {
             var item = Model.items[i];
             var subArray = new Array();
             for (j in item) {
-                console.log(j + "\t" + item[j]);
                 switch (typeof(item[j])) {
                 case "string":
                     subArray.push('"' + j + '":"' + item[j] + '"');
@@ -83,11 +78,6 @@ PageStackWindow {
             Model.setValue(item, "isDownloaded", true)
             Model.setValue(item, "isDownloading", false)
             Model.setValue(item, "url", newUrl)
-            /*
-            item.model.set(item.index, {
-                                        "isDownloading": false,
-                                        "url": newUrl});
-            */
         }
     }
 }
