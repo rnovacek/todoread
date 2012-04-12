@@ -19,9 +19,12 @@ provider.path = /usr/share/accounts/providers
 services.files = readitlater.service
 services.path = /usr/share/accounts/services
 
+icon.files = icon-m-service-readitlater.png
+icon.path = /usr/share/themes/base/meegotouch/icons
+
 target.path = /usr/lib/signon/
 
-INSTALLS += target provider services
+INSTALLS += target provider services icon
 
 OTHER_FILES += \
     readitlater.provider \
