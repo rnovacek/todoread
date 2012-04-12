@@ -7,6 +7,7 @@
 #include <QDir>
 #include <QDebug>
 #include <QtOpenGL/QGLWidget>
+#include <qplatformdefs.h>
 
 #include "qmlapplicationviewer.h"
 #include "globals.h"
@@ -28,9 +29,12 @@ TodoRead::TodoRead(int &argc, char **argv):
 
     // Controller
     m_controller = new Controller(m_view, m_config);
+    connect(m_controller, SIGNAL(quit()), SLOT(quit()));
+    connect(m_controller, SIGNAL(showGUI()), SLOT(showGUI()));
     m_view->rootContext()->setContextProperty("controller", m_controller);
 
     m_view->setOrientation(QmlApplicationViewer::ScreenOrientationAuto);
+
     // Set qml source    
     QDir dir(__FILE__);
     dir.cdUp();
@@ -44,10 +48,16 @@ TodoRead::TodoRead(int &argc, char **argv):
     }
     qDebug() << "TodoRead errors:" << m_view->errors();
 
-    // Main window
-    m_view->showExpanded();
-
     connect(this, SIGNAL(aboutToQuit()), SLOT(aboutToQuitHandler()));
+
+#ifdef MEEGO_EDITION_HARMATTAN
+#warning Meego
+#else
+#warning Desktop
+    // On harmattan platform, GUI will be shown after checking if some account exists
+    qDebug() << "Showing GUI imediatelly";
+    showGUI();
+#endif
 }
 
 TodoRead::~TodoRead()
@@ -55,6 +65,12 @@ TodoRead::~TodoRead()
     delete m_view;
     delete m_config;
     delete m_controller;
+}
+
+void TodoRead::showGUI()
+{
+    // Main window
+    m_view->showExpanded();
 }
 
 void TodoRead::aboutToQuitHandler()

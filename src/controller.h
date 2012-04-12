@@ -6,19 +6,11 @@
 
 #include <QVariant>
 
-namespace SignOn {
-class AuthService;
-class AuthSession;
-class Error;
-class Identity;
-class IdentityInfo;
-class SessionData;
-}
-
 class QSettings;
 class QDeclarativeView;
 
 class DownloadThread;
+class IdentityManager;
 
 class Controller : public QObject
 {
@@ -29,10 +21,12 @@ public:
 signals:
     void showReadChanged();
     void itemDownloadFinished(QObject *item, const QString &newUrl);
+    void showGUI();
+    void quit();
 public slots:
     void save(const QString &dump);
     QString load();
-    void getCredentials(QString &username, QString &password) const;
+    void credentials(QString, QString);
     void downloadItem(QObject *item);
 
     void openExternal(const QUrl &url);
@@ -41,17 +35,15 @@ public slots:
     void setConfigValue(const QString &name, const QVariant &value);
 
     QString cacheFile();
-private slots:
-    void signOnError(const SignOn::Error &);
-    void signOnIdentities(const QList<SignOn::IdentityInfo> &);
-    void identityResponse(const SignOn::SessionData &data);
+
+    bool isDownloaded(int id);
+    QUrl getIcon(QString url);
 private:
     QDeclarativeView *m_view;
     QSettings *m_config;
     DownloadThread *m_downloadThread;
-    SignOn::AuthService *m_authService;
-    SignOn::Identity *m_identity;
-    SignOn::AuthSession *m_session;
+    IdentityManager *m_identityManager;
+    QString m_username, m_password;
 };
 
 #endif // CONTROLLER_H

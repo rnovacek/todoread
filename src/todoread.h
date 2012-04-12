@@ -20,6 +20,7 @@ signals:
     
 public slots:
     void aboutToQuitHandler();
+    void showGUI();
     
 private:
     QmlApplicationViewer *m_view;
