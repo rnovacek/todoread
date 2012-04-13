@@ -90,7 +90,13 @@ QVariant Controller::configValue(const QString &name, const QVariant &default_)
         return m_password;
     }
 #endif
-    return m_config->value(name, default_);
+    // Set output type according to default value
+    if (default_.type() == QVariant::Bool)
+        return m_config->value(name, default_).toBool();
+    else if (default_.type() == QVariant::Int)
+        return m_config->value(name, default_).toInt();
+    else
+        return m_config->value(name, default_);
 }
 
 void Controller::setConfigValue(const QString &name, const QVariant &value)
