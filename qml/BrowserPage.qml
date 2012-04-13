@@ -5,9 +5,8 @@ import com.nokia.meego 1.0
 
 Page {
 
-    property string url: ""
-
-    onUrlChanged: browser.url = url
+    property alias url: browser.url
+    property bool isRead: false
 
     signal markAsRead
 
@@ -19,11 +18,14 @@ Page {
     tools: ToolBarLayout {
         ToolIcon {
             iconId: "toolbar-back"
-            onClicked: pageStack.pop()
+            onClicked: {
+                pageStack.pop();
+            }
         }
         ToolIcon {
-            iconId: "toolbar-done"
+            iconId: isRead ? "input-clear" : "toolbar-done"
             onClicked: {
+                isRead = !isRead;
                 markAsRead();
             }
         }

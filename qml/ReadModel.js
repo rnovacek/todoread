@@ -16,8 +16,6 @@ function ReadItem(id, title, url, state) {
     this.isDownloaded = controller.isDownloaded(id);
     console.log("isDownloaded: " + this.isDownloaded)
     this.isDownloading = false;
-    this.iconUrl = String(controller.getIcon(url));
-    console.log("iconUrl: " + this.iconUrl)
     this.model = null;
     this.index = -1;
 

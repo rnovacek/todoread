@@ -31,17 +31,31 @@ Rectangle {
         }
     }
 
-    Image {
-        id: favicon
-        asynchronous: true
-        source: "http://www.google.com/s2/favicons?domain=" + model.origUrl.match(/:\/\/(.[^/]+)/)[1]
-        width: 32
+    Rectangle {
+        id: itemIcon
+        width: (rootWindow.showFavicons || model.isDownloading) ? 32 : 0
         height: 32
+        visible: (rootWindow.showFavicons || model.isDownloading)
         anchors {
             top: parent.top
             topMargin: parent.height / 2 - 16
             left: downloadMark.right
             leftMargin: 8
+        }
+
+        Image {
+            id: favicon
+            asynchronous: true
+            smooth: true
+            visible: !model.isDownloading
+            source: rootWindow.showFavicon ? "" : "http://www.google.com/s2/favicons?domain=" + model.origUrl.match(/:\/\/(.[^/]+)/)[1]
+            anchors.fill: parent
+        }
+
+        BusyIndicator {
+            visible: model.isDownloading
+            running: model.isDownloading
+            anchors.fill: parent
         }
     }
 
@@ -52,7 +66,7 @@ Rectangle {
         font.bold: !model.isRead
         font.pixelSize: 24
         anchors {
-            left: favicon.right
+            left: itemIcon.right
             right: parent.right
             top: parent.top
             leftMargin: 8
@@ -68,7 +82,7 @@ Rectangle {
         color: "gray"
         font.pixelSize: 24
         anchors {
-            left: favicon.right
+            left: itemIcon.right
             right: parent.right
             top: label.bottom
             leftMargin: 8

@@ -13,6 +13,10 @@ PageStackWindow {
     property int currentIndex: -1
     property variant currentItem: null
 
+    property bool showFavicons: true
+    property bool useExternalBrowser: false
+    property bool markAutomatically: false
+
     initialPage: ListPage {
         id: list
         onOpenUrl: {
@@ -22,14 +26,35 @@ PageStackWindow {
 
     function openBrowser(index, item) {
         console.log("openBrowser: " + item.url)
-        currentItem = item
-        currentIndex = index
-        browserPage.url = item.url
-        pageStack.push(browserPage)
+        // Open item in internal or external browser
+        if (controller.configValue("useExternalBrowser", false)) {
+            controller.openExternal(item.url)
+        } else {
+            currentItem = item
+            currentIndex = index
+            browserPage.url = item.url
+            browserPage.isRead = item.isRead
+            pageStack.push(browserPage)
+        }
+
+        // Mark item as read if it's configured that way
+        if (controller.configValue("markAutomatically", false)) {
+            Model.setValue(item, "isRead", !item.isRead)
+        }
     }
 
-    function showError(error) {
-        console.log(error);
+    function showError(message) {
+        controller.error(message);
+    }
+
+    Component.onCompleted: {
+        reloadConfig();
+    }
+
+    function reloadConfig() {
+        showFavicons = controller.configValue("showFavicons", true)
+        useExternalBrowser = controller.configValue("useExternalBrowser", false)
+        markAutomatically = controller.configValue("markAutomatically", false)
     }
 
     Component.onDestruction: {
@@ -61,7 +86,7 @@ PageStackWindow {
         id: browserPage
 
         onMarkAsRead: {
-            list.model.set(currentIndex, {"isRead": !currentItem.isRead});
+            Model.setValue(currentItem, "isRead", !currentItem.isRead)
         }
     }
 
