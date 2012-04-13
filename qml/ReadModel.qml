@@ -8,6 +8,7 @@ ListModel {
     property bool showRead: false
 
     signal reloaded;
+    signal error(string message);
 
     function init() {
         showRead = controller.configValue("showRead", false);
@@ -15,7 +16,10 @@ ListModel {
     }
 
     function createModel(text) {
-        console.log("createModel: " + text);
+        if (model.length == 0) {
+            return;
+        }
+
         Model.items = new Array();
         var data = eval('(' + text + ')');
         for (var id in data.list) {
@@ -47,26 +51,25 @@ ListModel {
     }
 
     function handleResult(status) {
-        console.log("handleResult " + status)
         switch (status) {
         case 0:
             return true;
         case 200:
             return true;
         case 400:
-            rootWindow.showError("Request to server is not valid. File a bug, please.");
+            error("Request to server is not valid. File a bug, please.");
             return false;
         case 401:
-            rootWindow.showError("Username/password incorrect.");
+            error("Username/password incorrect.");
             return false;
         case 403:
-            rootWindow.showError("Rate limit exceeded, please wait a little bit before resubmitting");
+            error("Rate limit exceeded, please wait a little bit before resubmitting");
             return false;
         case 503:
-            rootWindow.showError("Read It Later's sync server is down for scheduled maintenance.");
+            error("Read It Later's sync server is down for scheduled maintenance.");
             return false;
         }
-        rootWindow.showError("Unknown error code: " + status);
+        error("Unknown error code: " + status);
         return false;
     }
 
@@ -75,15 +78,16 @@ ListModel {
         var readIndex = 0, unreadIndex = 0;
         for (var id in Model.items) {
             var item = Model.items[id];
-            if (item.isRead != item.isOrigRead) {
+            if (item.isRead !== item.isOrigRead) {
                 if (item.isRead) {
-                    console.log("Marked as read: " + id + "\t" + item);
                     // Mark item as read
-                    readItems.push('"' + readIndex + '":{"url":"' + item.origUrl + '"}');
+                    readItems.push('"' + readIndex + '":{"url":"' +
+                                   item.origUrl + '"}');
                     readIndex++;
                 } else {
-                    console.log("Unmarked as read: " + id + "\t" + item);
-                    unreadItems.push('"' + unreadIndex + '":{"title":"' + item.title + '","url":"' + item.origUrl + '"}');
+                    unreadItems.push('"' + unreadIndex + '":{"title":"' +
+                                     encodeURIComponent(item.title) + '","url":"' +
+                                     item.origUrl + '"}');
                     unreadIndex++;
                 }
             }
@@ -106,9 +110,6 @@ ListModel {
             var username = controller.configValue("username", "");
             var password = controller.configValue("password", "");
             var apikey = "926TnD0Vg5663lb9e7dc565vF9p4cW5a";
-
-            console.log("Logging in using " + username + " and " + password);
-            console.log("Read items dump: " + data);
 
             request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
             var params = "username=" + encodeURIComponent(username) +
@@ -140,16 +141,14 @@ ListModel {
             }
         }
 
-        request.onerror = function(error) {
-             console.log("error: " + error);
+        request.onerror = function(err) {
+             error(err);
          }
 
         request.open("POST", "https://readitlaterlist.com/v2/get", true);
         var username = controller.configValue("username", "");
         var password = controller.configValue("password", "");
         var apikey = "926TnD0Vg5663lb9e7dc565vF9p4cW5a";
-
-        console.log("Logging in using " + username + " and " + password);
 
         // TODO: Limit it by using timestamp
         request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -159,7 +158,9 @@ ListModel {
     }
 
     function downloadItem(item) {
-        item.model.set(item.count, {"isDownloading": true});
-        controller.downloadItem(item);
+        if (!item.isDownloaded) {
+            item.model.set(item.index, {"isDownloading": true});
+            controller.downloadItem(item);
+        }
     }
 }

@@ -37,7 +37,7 @@ public slots:
     QString cacheFile();
 
     bool isDownloaded(int id);
-    QUrl getIcon(QString url);
+    void error(const QString &message);
 private:
     QDeclarativeView *m_view;
     QSettings *m_config;

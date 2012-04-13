@@ -65,6 +65,10 @@ Page {
             onReloaded: {
                 busyIndicator.running = false;
             }
+            onError: {
+                busyIndicator.running = false;
+                rootWindow.showError(message);
+            }
         }
 
         delegate: ListItem {
