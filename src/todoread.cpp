@@ -24,11 +24,11 @@ TodoRead::TodoRead(int &argc, char **argv):
     connect(m_view->engine(), SIGNAL(quit()), SLOT(quit()));
 
     // Settings
-    m_config = new QSettings(Global::ConfigFile());
+    m_config = new QSettings(Global::ConfigFile(), QSettings::IniFormat, this);
     m_view->rootContext()->setContextProperty("config", m_config);
 
     // Controller
-    m_controller = new Controller(m_view, m_config);
+    m_controller = new Controller(m_view, m_config, this);
     connect(m_controller, SIGNAL(quit()), SLOT(quit()));
     connect(m_controller, SIGNAL(showGUI()), SLOT(showGUI()));
     m_view->rootContext()->setContextProperty("controller", m_controller);
@@ -63,8 +63,6 @@ TodoRead::TodoRead(int &argc, char **argv):
 TodoRead::~TodoRead()
 {
     delete m_view;
-    delete m_config;
-    delete m_controller;
 }
 
 void TodoRead::showGUI()

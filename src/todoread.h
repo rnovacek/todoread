@@ -15,9 +15,7 @@ class TodoRead : public QApplication
 public:
     explicit TodoRead(int &argc, char **argv);
     virtual ~TodoRead();
-    
-signals:
-    
+
 public slots:
     void aboutToQuitHandler();
     void showGUI();
