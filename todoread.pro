@@ -18,6 +18,9 @@ desktop.path = /usr/share/applications/
 icon.files = todoread80.png
 icon.path = /usr/share/icons/hicolor/80x80/apps/
 
+splash.files = splash.png
+splash.path = /opt/todoread/bin/
+
 symbian:TARGET.UID3 = 0xE2584B99
 
 # Smart Installer package's UID
@@ -40,4 +43,4 @@ OTHER_FILES += \
     qtc_packaging/debian_harmattan/changelog \
     qml/*
 
-INSTALLS += qml desktop icon
+INSTALLS += qml desktop icon splash

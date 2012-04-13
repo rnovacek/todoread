@@ -4,7 +4,7 @@ Version=1.0
 Type=Application
 Terminal=false
 Name=ToDo:Read
-Exec=/usr/bin/invoker --type=d -s /opt/todoread/bin/todoread
+Exec=/usr/bin/invoker --splash=/opt/todoread/bin/splash.png --type=d -s /opt/todoread/bin/todoread
 Icon=/usr/share/icons/hicolor/80x80/apps/todoread80.png
 X-Window-Icon=
 X-HildonDesk-ShowInToolbar=true
