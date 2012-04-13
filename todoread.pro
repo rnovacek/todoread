@@ -4,7 +4,9 @@ TEMPLATE = subdirs
 SUBDIRS = src
 
 contains(MEEGO_EDITION,harmattan):{
-    SUBDIRS += readitlater #test
+    SUBDIRS += \
+        readitlaterprovider \
+        readitlaterservice
 }
 
 qml.files = qml/*
