@@ -40,11 +40,24 @@ Page {
         id: mainMenu
         MenuLayout {
             MenuItem {
+                text: "About"
+                onClicked: pageStack.push(aboutPage)
+            }
+
+            MenuItem {
+                text: "Help!"
+                onClicked: {
+                    controller.openExternal("https://github.com/rnovacek/todoread/wiki/Getting-Started")
+                }
+            }
+
+            MenuItem {
                 text: "Configuration"
                 onClicked: pageStack.push(configPage)
             }
+
             MenuItem {
-                text: model.showRead ? "Hide read" : "Show read"
+                text: model.showRead ? "Hide read articles" : "Show read articles"
                 onClicked: {
                     model.showRead = !model.showRead
                 }

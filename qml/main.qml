@@ -82,6 +82,10 @@ PageStackWindow {
         controller.save(dump);
     }
 
+    AboutPage {
+        id: aboutPage
+    }
+
     BrowserPage {
         id: browserPage
 

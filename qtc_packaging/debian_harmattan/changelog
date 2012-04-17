@@ -1,10 +1,17 @@
+todoread (0.0.4) unstable; urgency=low
+
+  * Add Help! button
+  * Add about dialog
+
+ -- Radek Novacek <rad.n@centrum.cz>  Mon, 16 Apr 2012 23:30:00 +0200
+
 todoread (0.0.3) unstable; urgency=low
 
   * Better error handling
   * More configuration options
   * various fixes
 
- -- Radek Novacek <rad.n@centrum.cz>  Thu, 13 Apr 2012 23:59:59 +0200
+ -- Radek Novacek <rad.n@centrum.cz>  Fri, 13 Apr 2012 23:59:59 +0200
 
 todoread (0.0.2) unstable; urgency=low
 
