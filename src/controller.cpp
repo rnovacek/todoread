@@ -32,6 +32,7 @@ Controller::Controller(QDeclarativeView *view, QSettings *config, QObject *paren
     m_identityManager = new IdentityManager(this);
     connect(m_identityManager, SIGNAL(noAccount()), SIGNAL(quit()));
     connect(m_identityManager, SIGNAL(credentials(QString, QString)), SLOT(credentials(QString, QString)));
+    connect(m_identityManager, SIGNAL(credentialsError(QString)), SLOT(error(QString)));
     m_identityManager->getCredentials();
 #endif
 }
@@ -124,5 +125,5 @@ bool Controller::isDownloaded(int id)
 
 void Controller::error(const QString &message)
 {
-    QMessageBox::critical(m_view, "Error", message);
+    emit showError(message);
 }

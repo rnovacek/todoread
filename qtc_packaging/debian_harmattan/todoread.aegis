@@ -1,7 +1,0 @@
-<aegis>
-    <request policy="add">
-        <credential name="signond::keychain-access" />
-        <for path="/opt/todoread/bin/todoread" />
-        <for path="applauncherd-launcher::/usr/bin/applauncherd.bin" />
-    </request>
-</aegis>

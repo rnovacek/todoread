@@ -22,6 +22,7 @@ signals:
     void showReadChanged();
     void itemDownloadFinished(QObject *item, const QString &newUrl);
     void showGUI();
+    void showError(const QString &message);
     void quit();
 public slots:
     void save(const QString &dump);

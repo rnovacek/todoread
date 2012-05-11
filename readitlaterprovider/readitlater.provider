@@ -11,14 +11,13 @@
     <account-setup>
         <register type="formular"/>
         <authsession>
-            <validate method="password" mechanism="password" />
-            <method name="password">
-                <mechanism name="password"/>
+            <validate method="readitlater" mechanism="CheckPassword" />
+            <method name="readitlater">
+                <mechanism name="CheckPassword"/>
+                    <tokens></tokens>
+                <mechanism name="GetPassword"/>
+                    <tokens></tokens>
             </method>
         </authsession>
     </account-setup>
-    <install-existing>
-         <setting name="address" type="string" is_displayname="true"/>
-         <setting name="password" type="password"/>
-    </install-existing>
 </provider>

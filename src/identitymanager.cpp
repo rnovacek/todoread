@@ -12,7 +12,7 @@
 #include <Accounts/Account>
 
 IdentityManager::IdentityManager(QObject *parent) :
-    QObject(parent), m_manager(new Accounts::Manager(this))
+    QObject(parent), state(STARTED), firstError(false), m_manager(new Accounts::Manager(this))
 {
     m_proxy = new AccountSetup::ProviderPluginProxy(this);
     connect(m_proxy, SIGNAL(finished()), SLOT(accountCreated()));
@@ -20,8 +20,10 @@ IdentityManager::IdentityManager(QObject *parent) :
 
 void IdentityManager::getCredentials()
 {
+    state = GET_ACCOUNT;
     Accounts::AccountIdList list = m_manager->accountListEnabled("sharing");
 
+    // Try to find existing account
     int j;
     for (int i = 0; i < list.size(); ++i) {
         m_account = m_manager->account(list[i]);
@@ -36,7 +38,7 @@ void IdentityManager::getCredentials()
             }
         }
     }
-    // Account was not found, create a new one
+    // Not found, creating new one
     qDebug() << "Account was not found, create a new one";
     m_proxy->createAccount(m_manager->provider("readitlater"), "sharing");
 }
@@ -53,45 +55,50 @@ void IdentityManager::accountCreated()
     }
 }
 
-
 void IdentityManager::accountFound()
 {
-    qDebug() << "Process account";
+    state = GET_PASSWORD;
     quint32 id = m_account->valueAsInt("CredentialsId", 0);
-    qDebug() << "ID: " << id;
+    qDebug() << "Process account #" << id;
     if (id == 0) {
         id = m_account->credentialsId();
-        qDebug() << "ID: " << id;
     }
     SignOn::Identity *identity = SignOn::Identity::existingIdentity(id, this);
     connect(identity, SIGNAL(error(SignOn::Error)), SLOT(error(SignOn::Error)));
 
     if (identity) {
         qDebug() << "Identity was obtained: " << identity;
-        m_session = identity->createSession(QLatin1String("password"));
+        m_session = identity->createSession(QLatin1String("readitlater"));
         connect(m_session, SIGNAL(response(SignOn::SessionData)), SLOT(identityResponse(SignOn::SessionData)));
         connect(m_session, SIGNAL(error(SignOn::Error)), SLOT(error(SignOn::Error)));
-        m_session->process(SignOn::SessionData(), QLatin1String("password"));
+        m_session->process(SignOn::SessionData(), QLatin1String("GetPassword"));
     } else {
         qDebug() << "No SSO identity for the account " << m_account->credentialsId();
+        m_proxy->editAccount(m_account, "sharing");
     }
 }
-
 
 void IdentityManager::identityResponse(const SignOn::SessionData &data)
 {
-    if (!data.propertyNames().contains("Secret")) {
+    state = DONE;
+    if (!data.propertyNames().contains("SecretPassword")) {
         qDebug() << "Identity is missing secret";
         m_proxy->editAccount(m_account, "sharing");
     } else {
-        qDebug() << "identityResponse: " << data.propertyNames() << data.Secret() << data.getProperty("Secret").toString();
-        emit credentials(data.getProperty("UserName").toString(), data.getProperty("Secret").toString());
+        qDebug() << "Got secret credentials";
+        emit credentials(data.getProperty("UserName").toString(), data.getProperty("SecretPassword").toString());
     }
 }
 
-
 void IdentityManager::error(const SignOn::Error &error)
 {
-    // TODO: respond
     qDebug() << "IdentityManager::error: " << error.message() << "(#" << error.type() << ")";
+    if (!firstError) {
+        // We haven't get any error yet, retry
+        firstError = true;
+        if (m_account)
+            m_proxy->editAccount(m_account, "sharing");
+        return;
+    }
+    emit credentialsError(error.message());
 }

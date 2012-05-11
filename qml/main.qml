@@ -98,6 +98,12 @@ PageStackWindow {
         id: configPage
     }
 
+    QueryDialog {
+        id: errorDialog
+        titleText: "Error"
+        message: "Error"
+    }
+
     Connections {
         target: controller;
         onItemDownloadFinished: {
@@ -107,6 +113,11 @@ PageStackWindow {
             Model.setValue(item, "isDownloaded", true)
             Model.setValue(item, "isDownloading", false)
             Model.setValue(item, "url", newUrl)
+        }
+        onShowError: {
+            console.log("showError: ", message);
+            errorDialog.message = message;
+            errorDialog.open();
         }
     }
 }

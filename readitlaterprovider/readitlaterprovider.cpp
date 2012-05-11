@@ -6,9 +6,12 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 
+#include <QDebug>
+
 ReadItLaterPlugin::ReadItLaterPlugin(QObject *parent) :
     AuthPluginInterface(parent), m_networkManager(new QNetworkAccessManager(this))
 {
+    qDebug() << "ReadItLaterPlugin::ReadItLaterPlugin";
 }
 
 ReadItLaterPlugin::~ReadItLaterPlugin()
@@ -23,7 +26,7 @@ QString ReadItLaterPlugin::type() const
 
 QStringList ReadItLaterPlugin::mechanisms() const
 {
-    return QStringList() << "ReadItLater";
+    return QStringList() << "GetPassword" << "CheckPassword";
 }
 
 void ReadItLaterPlugin::cancel()
@@ -36,7 +39,8 @@ void ReadItLaterPlugin::abort()
 
 void ReadItLaterPlugin::process(const SignOn::SessionData &inData, const QString &mechanism)
 {
-    if (mechanism == "ReadItLater") {
+    qDebug() << "ReadItLaterPlugin::process" << mechanism;
+    if (mechanism == "CheckPassword") {
         QUrl query;
         query.addQueryItem("username", inData.getProperty("UserName").toString());
         query.addQueryItem("password", inData.getProperty("Secret").toString());
@@ -46,15 +50,22 @@ void ReadItLaterPlugin::process(const SignOn::SessionData &inData, const QString
         QNetworkReply *reply = m_networkManager->post(request, query.encodedQuery());
         connect(reply, SIGNAL(finished()), SLOT(authenticationFinished()));
 
-        m_data = inData;
+        m_data = inData.data<ReadItLaterSessionData>();
+        m_data.setSecretPassword(inData.getProperty("Secret").toString());
+    } else if (mechanism == "GetPassword") {
+        m_data = inData.data<ReadItLaterSessionData>();
+        m_data.setSecretPassword(inData.getProperty("Secret").toString());
+        emit result(m_data);
     }
 }
 
 void ReadItLaterPlugin::authenticationFinished()
 {
     QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+    qDebug() << "Error: " << reply->errorString();
     switch (reply->error()) {
     case QNetworkReply::NoError:
+        emit store(m_data);
         emit result(m_data);
         break;
     case QNetworkReply::AuthenticationRequiredError:

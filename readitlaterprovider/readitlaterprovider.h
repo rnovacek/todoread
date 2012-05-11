@@ -5,6 +5,13 @@
 
 class QNetworkAccessManager;
 
+class ReadItLaterSessionData : public SignOn::SessionData
+{
+public:
+    SIGNON_SESSION_DECLARE_PROPERTY(QString, SecretPassword);
+};
+
+
 class ReadItLaterPlugin : public AuthPluginInterface
 {
     Q_OBJECT
@@ -26,7 +33,7 @@ public Q_SLOTS:
 
 private:
     QNetworkAccessManager *m_networkManager;
-    SignOn::SessionData m_data;
+    ReadItLaterSessionData m_data;
 };
 
 #endif // READITLATERPROVIDER_H

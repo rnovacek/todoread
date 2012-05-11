@@ -14,14 +14,14 @@ bool ReadItLaterAuth::isAuthRequired()
 WebUpload::AuthData ReadItLaterAuth::getAuthData()
 {
     WebUpload::AuthData data;
-    data.methodName = "password";
-    data.mechanism = "password";
+    data.methodName = "readitlater";
+    data.mechanism = "GetPassword";
     return data;
 }
 
 void ReadItLaterAuth::handleResponse(const SignOn::SessionData &sessionData)
 {
     m_username = sessionData.UserName();
-    m_password = sessionData.Secret();
+    m_password = sessionData.getProperty("SecretPassword").toString();
     emit authResult(RESULT_SUCCESS);
 }
