@@ -7,9 +7,6 @@ import "ReadModel.js" as Model
 PageStackWindow {
     id: rootWindow
 
-//    width: 480
-//    height: 480
-
     property int currentIndex: -1
     property variant currentItem: null
 

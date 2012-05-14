@@ -69,6 +69,7 @@ Page {
         id: tableView
         anchors.fill: parent
         anchors.topMargin: 16
+        cacheBuffer: 200
         model: ReadModel {
             id: model
             onShowReadChanged: {

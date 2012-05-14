@@ -15,11 +15,16 @@
 TodoRead::TodoRead(int &argc, char **argv):
     QApplication(argc, argv)
 {
-    // TODO: what does it do?
-    //setProperty("NoMStyle", true);
+    QGLFormat format = QGLFormat::defaultFormat();
+    format.setSampleBuffers(false);
+    QGLWidget *glWidget = new QGLWidget(format);
+    // Comment the following line if you get display problems
+    // (usually when the top-level element is an Item and not a Rectangle)
+    glWidget->setAutoFillBackground(false);
 
     // Declarative view
     m_view = new QmlApplicationViewer();
+    m_view->setViewport(glWidget);
 
     connect(m_view->engine(), SIGNAL(quit()), SLOT(quit()));
 
@@ -68,7 +73,7 @@ TodoRead::~TodoRead()
 void TodoRead::showGUI()
 {
     // Main window
-    m_view->showExpanded();
+    m_view->showFullScreen();
 }
 
 void TodoRead::aboutToQuitHandler()

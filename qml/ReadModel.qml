@@ -96,6 +96,11 @@ ListModel {
             // Send read/unread items
 
             var request = new XMLHttpRequest();
+            request.timeout = 10000;
+            request.ontimeout = function() {
+                error("Unable to update the list of articles.");
+            }
+
             request.onreadystatechange = function() {
                 if (request.readyState === XMLHttpRequest.DONE) {
                     if (handleResult(request.status)) {
@@ -132,6 +137,10 @@ ListModel {
 
     function download() {
         var request = new XMLHttpRequest();
+        request.timeout = 10000;
+        request.ontimeout = function() {
+            error("Unable to update the list of articles.");
+        }
         request.onreadystatechange = function() {
             if (request.readyState === XMLHttpRequest.DONE) {
                 if (handleResult(request.status)) {
