@@ -22,7 +22,7 @@ contains(MEEGO_EDITION,harmattan):{
     HEADERS += identitymanager.h
 }
 
-QT += gui webkit
+QT += gui webkit opengl
 
 CONFIG += link_pkgconfig qdeclarative-boostable qt-components
 

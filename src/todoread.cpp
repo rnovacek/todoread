@@ -7,6 +7,7 @@
 #include <QDir>
 #include <QDebug>
 #include <QtOpenGL/QGLWidget>
+#include <QtOpenGL/QGLFormat>
 #include <qplatformdefs.h>
 
 #include "qmlapplicationviewer.h"
@@ -56,10 +57,8 @@ TodoRead::TodoRead(int &argc, char **argv):
     connect(this, SIGNAL(aboutToQuit()), SLOT(aboutToQuitHandler()));
 
 #ifdef MEEGO_EDITION_HARMATTAN
-#warning Meego
-#else
-#warning Desktop
     // On harmattan platform, GUI will be shown after checking if some account exists
+#else
     qDebug() << "Showing GUI imediatelly";
     showGUI();
 #endif
@@ -73,7 +72,11 @@ TodoRead::~TodoRead()
 void TodoRead::showGUI()
 {
     // Main window
+#ifdef MEEGO_EDITION_HARMATTAN
     m_view->showFullScreen();
+#else
+    m_view->showNormal();
+#endif
 }
 
 void TodoRead::aboutToQuitHandler()
