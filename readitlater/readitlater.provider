@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE provider>
+<provider version="1.0" id="readitlater">
+    <name>Read It Later</name>
+    <short-description>Save web page for reading later</short-description>
+    <translations>readitlater</translations>
+    <description>Read It Later lets you save what you find on the web to watch and read on any device, at any time.</description>
+    <icon>icon-m-service-readitlater</icon>
+    <sign-up-link>http://readitlaterlist.com/signup</sign-up-link>
+    <forgot-password-link>http://readitlaterlist.com/forgot/</forgot-password-link>
+    <account-setup>
+        <register type="formular"/>
+        <authsession>
+            <validate method="password" mechanism="password" />
+            <method name="password">
+                <mechanism name="password"/>
+            </method>
+        </authsession>
+    </account-setup>
+    <install-existing>
+         <setting name="address" type="string" is_displayname="true"/>
+         <setting name="password" type="password"/>
+    </install-existing>
+</provider>
