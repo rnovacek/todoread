@@ -48,7 +48,7 @@ Rectangle {
             asynchronous: true
             smooth: true
             visible: !model.isDownloading
-            source: rootWindow.showFavicon ? "" : "http://www.google.com/s2/favicons?domain=" + model.origUrl.match(/:\/\/(.[^/]+)/)[1]
+            source: rootWindow.showFavicon ? "" : (controller.networkOnline ? "http://www.google.com/s2/favicons?domain=" + model.origUrl.match(/:\/\/(.[^/]+)/)[1]  : "")
             anchors.fill: parent
         }
 

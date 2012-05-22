@@ -10,6 +10,8 @@
 #include <QMessageBox>
 #include <QProgressDialog>
 #include <QDesktopServices>
+#include <QtNetwork/QNetworkAccessManager>
+#include <QtNetwork/QNetworkConfigurationManager>
 #include <QSignalMapper>
 #include <QTimer>
 #include <QUrl>
@@ -24,10 +26,24 @@
 #endif
 
 Controller::Controller(QDeclarativeView *view, QSettings *config, QObject *parent) :
-    QObject(parent), m_view(view), m_config(config), m_downloadThread(new DownloadThread())
+    QObject(parent), m_view(view), m_config(config), m_networkManager(new QNetworkAccessManager()),
+    m_networkConfig(new QNetworkConfigurationManager()), m_downloadThread(new DownloadThread())
 {
+    m_networkManager->setConfiguration(m_networkConfig->defaultConfiguration());
+    m_sendNetworkWentOnline = m_networkManager->networkAccessible() != QNetworkAccessManager::Accessible;
+
+    connect(m_networkManager, SIGNAL(networkAccessibleChanged(QNetworkAccessManager::NetworkAccessibility)),
+            SLOT(onNetworkAccessibleChanged(QNetworkAccessManager::NetworkAccessibility)));
+
+    QFile urlCacheFile(Global::UrlCache());
+    if (urlCacheFile.exists() && urlCacheFile.open(QIODevice::ReadOnly)) {
+        QDataStream stream(&urlCacheFile);
+        stream >> m_urlCache;
+        urlCacheFile.close();
+    }
+
     connect(m_downloadThread, SIGNAL(itemDownloaded(QObject *, const QString &)),
-            SIGNAL(itemDownloadFinished(QObject *, const QString &)));
+            SLOT(itemDownloaded(QObject *, const QString &)));
 #ifdef MEEGO_EDITION_HARMATTAN
     m_identityManager = new IdentityManager(this);
     connect(m_identityManager, SIGNAL(noAccount()), SIGNAL(quit()));
@@ -35,6 +51,21 @@ Controller::Controller(QDeclarativeView *view, QSettings *config, QObject *paren
     connect(m_identityManager, SIGNAL(credentialsError(QString)), SLOT(error(QString)));
     m_identityManager->getCredentials();
 #endif
+}
+
+void Controller::onNetworkAccessibleChanged(QNetworkAccessManager::NetworkAccessibility na)
+{
+    emit networkAccessibleChanged();
+    if (m_sendNetworkWentOnline && na == QNetworkAccessManager::Accessible) {
+        m_sendNetworkWentOnline = false;
+        networkWentOnline();
+    }
+}
+
+void Controller::itemDownloaded(QObject *obj, const QString &newUrl)
+{
+    emit itemDownloadFinished(obj, newUrl);
+    m_urlCache[obj->property("id").toInt()] = newUrl;
 }
 
 void Controller::save(const QString &dump)
@@ -75,9 +106,9 @@ void Controller::openExternal(const QUrl &url)
     QDesktopServices::openUrl(url);
 }
 
-bool Controller::isConfigured()
+bool Controller::isNetworkAccessible()
 {
-    return m_config->contains("username");
+    return m_networkManager->networkAccessible() != 0;
 }
 
 QVariant Controller::configValue(const QString &name, const QVariant &default_)
