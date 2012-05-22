@@ -82,6 +82,13 @@ void Controller::save(const QString &dump)
     }
     f.write(dump.toUtf8());
     f.close();
+
+    QFile urlCacheFile(Global::UrlCache());
+    if (urlCacheFile.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
+        QDataStream stream(&urlCacheFile);
+        stream << m_urlCache;
+        urlCacheFile.close();
+    }
 }
 
 QString Controller::load()
@@ -141,6 +148,16 @@ QString Controller::cacheFile()
     return Global::MyDir().absoluteFilePath("cache.json");
 }
 
+QString Controller::getDownloadedUrl(int id)
+{
+    QHash<int, QString>::const_iterator it = m_urlCache.find(id);
+    if (it != m_urlCache.end()) {
+        return it.value();
+    } else {
+        return QString();
+    }
+}
+
 void Controller::credentials(QString username, QString password)
 {
     qDebug() << "Controller::credentials";
@@ -149,10 +166,6 @@ void Controller::credentials(QString username, QString password)
     emit showGUI();
 }
 
-bool Controller::isDownloaded(int id)
-{
-    return Global::CacheDir().exists(QString("%1").arg(id));
-}
 
 void Controller::error(const QString &message)
 {

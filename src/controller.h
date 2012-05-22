@@ -37,6 +37,7 @@ public slots:
     QString load();
     void credentials(QString, QString);
     void downloadItem(QObject *item);
+    void itemDownloaded(QObject *, const QString &);
 
     void openExternal(const QUrl &url);
 
@@ -59,6 +60,7 @@ private:
     DownloadThread *m_downloadThread;
     IdentityManager *m_identityManager;
     QString m_username, m_password;
+    QHash<int, QString> m_urlCache;
 };
 
 #endif // CONTROLLER_H

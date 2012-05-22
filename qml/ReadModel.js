@@ -9,12 +9,17 @@ var controller = new Object;
 function ReadItem(id, title, url, state) {
     this.id = id;
     this.title = title;
-    this.url = url;
     this.origUrl = url;
+    var newUrl = controller.getDownloadedUrl(id);
+    if (newUrl.length > 0) {
+        this.url = newUrl;
+        this.isDownloaded = true;
+    } else {
+        this.url = url;
+        this.isDownloaded = false;
+    }
     this.isRead = state == 1;
     this.isOrigRead = this.isRead;
-    this.isDownloaded = controller.isDownloaded(id);
-    console.log("isDownloaded: " + this.isDownloaded)
     this.isDownloading = false;
     this.model = null;
     this.index = -1;

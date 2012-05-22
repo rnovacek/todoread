@@ -27,6 +27,11 @@ public:
     {
         return MyDir().absoluteFilePath("config.ini");
     }
+
+    static const QString UrlCache()
+    {
+        return MyDir().absoluteFilePath("urlcache.dat");
+    }
 };
 
 #endif // GLOBALS_H

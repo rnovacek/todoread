@@ -57,17 +57,22 @@ void DownloadThread::run()
 
         m_process->start(m_downloadProgram, args);
 
-
-        QString newUrl = QString("file://%1/%2/%3/%4").arg(Global::CacheDir().absolutePath()).arg(id).arg(url.host()).arg(url.path());
-        if (url.path().endsWith('/')) {
-            newUrl.append("index.html");
-        } else if (!url.path().endsWith(".html")) {
-            newUrl.append(".html");
-        }
-        qDebug() << "new url: " << newUrl << " from: " << url;
-
         if (m_process->waitForFinished(30000)) {
-            emit itemDownloaded(item, newUrl);
+            // Get newUrl from standard error
+            QByteArray stderr = m_process->readAllStandardError();
+            int start = stderr.indexOf(" -> \"");
+            if (start != -1) {
+                start += 5;
+                int end = stderr.indexOf("\"", start);
+                if (end != -1) {
+                    QString newUrl = QString::fromUtf8(stderr.mid(start, end - start));
+                    emit itemDownloaded(item, QUrl::fromLocalFile(newUrl).toString());
+                } else {
+                    emit itemDownloadFailed(item);
+                }
+            } else {
+                emit itemDownloadFailed(item);
+            }
         } else {
             emit itemDownloadFailed(item);
         }
