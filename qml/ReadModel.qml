@@ -144,8 +144,12 @@ ListModel {
         request.onreadystatechange = function() {
             if (request.readyState === XMLHttpRequest.DONE) {
                 if (handleResult(request.status)) {
-                    createModel(request.responseText);
-                    reload();
+                    if (request.responseText.length > 0) {
+                        createModel(request.responseText);
+                        reload();
+                    } else {
+                        error("Unable to download data");
+                    }
                 }
             }
         }
