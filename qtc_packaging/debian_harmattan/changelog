@@ -1,3 +1,12 @@
+todoread (0.0.5) unstable; urgency=low
+
+  * Speed up using opengl and caching
+  * Minimize showing network connection dialog a bit
+  * Fix authentication
+  * Fix various bugs
+
+ -- Radek Novacek <rad.n@centrum.cz>  Tue, 22 May 2012 21:00:00 +0200
+
 todoread (0.0.4) unstable; urgency=low
 
   * Add Help! button
