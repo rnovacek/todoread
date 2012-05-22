@@ -213,7 +213,6 @@ Flickable {
                 flickable.contentX = 0
                 flickable.contentY = 0
                 //settings.pluginsEnabled = true;
-                print(" XXX Plugins on? " + settings.pluginsEnabled);
             }
             onTitleChanged: {
                 //print("title changed in flickable " + title);
