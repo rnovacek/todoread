@@ -1,27 +1,25 @@
 #ifndef TODOREAD_H
 #define TODOREAD_H
 
-#include <QtGui/QApplication>
-
-#include "controller.h"
+#include <QtCore/QObject>
+#include <QtDeclarative/QDeclarativeContext>
 
 class QmlApplicationViewer;
 class QSettings;
 class QGLWidget;
+class Controller;
 
-class TodoRead : public QApplication
+class TodoRead : public QObject
 {
     Q_OBJECT
 public:
-    explicit TodoRead(int &argc, char **argv);
-    virtual ~TodoRead();
-
+    explicit TodoRead(QObject *parent=0);
 public slots:
-    void aboutToQuitHandler();
     void showGUI();
-    
+private slots:
+    void aboutToQuitHandler();
 private:
-    QmlApplicationViewer *m_view;
+    QDeclarativeContext *rootContext;
     QSettings *m_config;
     Controller *m_controller;
     QGLWidget *m_glw;

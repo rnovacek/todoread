@@ -6,8 +6,10 @@
 
 #include <QVariant>
 
+class ReadDataSource;
+class TodoReadModel;
 class QSettings;
-class QDeclarativeView;
+class QDeclarativeContext;
 class QNetworkConfigurationManager;
 
 #include <QtNetwork/QNetworkAccessManager>
@@ -23,7 +25,9 @@ class Controller : public QObject
     // Only changed when network goes from offline to online state
     Q_PROPERTY(bool networkOnline READ isNetworkAccessible NOTIFY networkWentOnline)
 public:
-    explicit Controller(QDeclarativeView *view, QSettings *config, QObject *parent = 0);
+    explicit Controller(QDeclarativeContext *context, QSettings *config, QObject *parent = 0);
+    virtual ~Controller();
+    TodoReadModel *model() { return m_model; }
 signals:
     void showReadChanged();
     void itemDownloadFinished(QObject *item, const QString &newUrl);
@@ -33,8 +37,9 @@ signals:
     void showError(const QString &message);
     void quit();
 public slots:
-    void save(const QString &dump);
-    QString load();
+    void reloadModel();
+    void save();
+    void load();
     void credentials(QString, QString);
     void downloadItem(QObject *item);
     void itemDownloaded(QObject *, const QString &);
@@ -53,7 +58,7 @@ public slots:
     void error(const QString &message);
 private:
     bool m_sendNetworkWentOnline;
-    QDeclarativeView *m_view;
+    QDeclarativeContext *m_context;
     QSettings *m_config;
     QNetworkAccessManager *m_networkManager;
     QNetworkConfigurationManager *m_networkConfig;
@@ -61,6 +66,8 @@ private:
     IdentityManager *m_identityManager;
     QString m_username, m_password;
     QHash<int, QString> m_urlCache;
+    TodoReadModel *m_model;
+    ReadDataSource *m_dataSource;
 };
 
 #endif // CONTROLLER_H

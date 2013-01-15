@@ -1,7 +1,8 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
-#include <QDir>
+#include <QtCore/QDir>
+#include <QtCore/QDateTime>
 
 class Global
 {
@@ -31,6 +32,11 @@ public:
     static const QString UrlCache()
     {
         return MyDir().absoluteFilePath("urlcache.dat");
+    }
+
+    static qint64 Now()
+    {
+        return QDateTime::currentDateTime().toMSecsSinceEpoch() / 1000;
     }
 };
 

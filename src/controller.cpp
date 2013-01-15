@@ -1,56 +1,66 @@
 #include "controller.h"
 
-#include <QDebug>
-#include <QFile>
-#include <QSettings>
-#include <QDeclarativeView>
-#include <QDeclarativeItem>
-#include <QDeclarativeProperty>
-#include <QDeclarativeContext>
-#include <QMessageBox>
-#include <QProgressDialog>
-#include <QDesktopServices>
+#include "globals.h"
+
+#include <QtCore/QDebug>
+#include <QtCore/QFile>
+#include <QtCore/QSettings>
+#include <QtCore/QSignalMapper>
+#include <QtCore/QTimer>
+#include <QtCore/QUrl>
+#include <QtDeclarative/QDeclarativeView>
+#include <QtDeclarative/QDeclarativeItem>
+#include <QtDeclarative/QDeclarativeProperty>
+#include <QtDeclarative/QDeclarativeContext>
+#include <QtGui/QMessageBox>
+#include <QtGui/QProgressDialog>
+#include <QtGui/QDesktopServices>
 #include <QtNetwork/QNetworkAccessManager>
 #include <QtNetwork/QNetworkConfigurationManager>
-#include <QSignalMapper>
-#include <QTimer>
-#include <QUrl>
-#include <QtWebKit/QWebSettings>
-#include <qplatformdefs.h>
 
-#include "globals.h"
 #include "downloadthread.h"
+#include "todoreadmodel.h"
+#include "readdatasource.h"
+#include "readitlater.h"
 
-#ifdef MEEGO_EDITION_HARMATTAN
+#ifdef TODOREAD_HARMATTAN
 #include "identitymanager.h"
 #endif
 
-Controller::Controller(QDeclarativeView *view, QSettings *config, QObject *parent) :
-    QObject(parent), m_view(view), m_config(config), m_networkManager(new QNetworkAccessManager()),
-    m_networkConfig(new QNetworkConfigurationManager()), m_downloadThread(new DownloadThread())
-{
+Controller::Controller(QDeclarativeContext *context, QSettings *config, QObject *parent) :
+    QObject(parent), m_context(context), m_config(config), m_networkManager(new QNetworkAccessManager()),
+    m_networkConfig(new QNetworkConfigurationManager()), m_downloadThread(new DownloadThread()),
+    m_model(new TodoReadModel(this)),
+    m_dataSource(new ReadItLater(m_model, config, this)) // TODO: let user select data source
+{;
     m_networkManager->setConfiguration(m_networkConfig->defaultConfiguration());
     m_sendNetworkWentOnline = m_networkManager->networkAccessible() != QNetworkAccessManager::Accessible;
 
     connect(m_networkManager, SIGNAL(networkAccessibleChanged(QNetworkAccessManager::NetworkAccessibility)),
             SLOT(onNetworkAccessibleChanged(QNetworkAccessManager::NetworkAccessibility)));
 
-    QFile urlCacheFile(Global::UrlCache());
-    if (urlCacheFile.exists() && urlCacheFile.open(QIODevice::ReadOnly)) {
-        QDataStream stream(&urlCacheFile);
-        stream >> m_urlCache;
-        urlCacheFile.close();
-    }
+    load();
 
     connect(m_downloadThread, SIGNAL(itemDownloaded(QObject *, const QString &)),
             SLOT(itemDownloaded(QObject *, const QString &)));
-#ifdef MEEGO_EDITION_HARMATTAN
+#ifdef TODOREAD_HARMATTAN
     m_identityManager = new IdentityManager(this);
     connect(m_identityManager, SIGNAL(noAccount()), SIGNAL(quit()));
     connect(m_identityManager, SIGNAL(credentials(QString, QString)), SLOT(credentials(QString, QString)));
     connect(m_identityManager, SIGNAL(credentialsError(QString)), SLOT(error(QString)));
     m_identityManager->getCredentials();
 #endif
+}
+
+Controller::~Controller()
+{
+    qDebug() << "Controller::~Controller";
+}
+
+
+void Controller::reloadModel()
+{
+    m_dataSource->sync();
 }
 
 void Controller::onNetworkAccessibleChanged(QNetworkAccessManager::NetworkAccessibility na)
@@ -68,39 +78,16 @@ void Controller::itemDownloaded(QObject *obj, const QString &newUrl)
     m_urlCache[obj->property("id").toInt()] = newUrl;
 }
 
-void Controller::save(const QString &dump)
+void Controller::save()
 {
-    qDebug() << "Controller.save()";
-    if (!Global::MyDir().exists()) {
-        Global::MyDir().mkpath(".");
-    }
-
-    QFile f(cacheFile());
-    if (!f.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
-        // TODO: Error handling
-        return;
-    }
-    f.write(dump.toUtf8());
-    f.close();
-
-    QFile urlCacheFile(Global::UrlCache());
-    if (urlCacheFile.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
-        QDataStream stream(&urlCacheFile);
-        stream << m_urlCache;
-        urlCacheFile.close();
-    }
+    qDebug() << "Controller.save()" << m_model->rowCount();
+    m_model->save(cacheFile());
 }
 
-QString Controller::load()
+void Controller::load()
 {
-    QFile f(cacheFile());
-    if (!f.open(QIODevice::ReadWrite)) {
-        // TODO: Error handling
-        return QString();
-    }
-    QString dump = QString::fromUtf8(f.readAll());
-    f.close();
-    return dump;
+    qDebug() << "Controller.load()";
+    m_model->load(cacheFile());
 }
 
 void Controller::downloadItem(QObject *item)
@@ -120,7 +107,7 @@ bool Controller::isNetworkAccessible()
 
 QVariant Controller::configValue(const QString &name, const QVariant &default_)
 {
-#ifdef MEEGO_EDITION_HARMATTAN
+#ifdef TODOREAD_HARMATTAN
     // We have credentials from Account Manager on Harmattan
     if (name == "username") {
         return m_username;
@@ -145,6 +132,10 @@ void Controller::setConfigValue(const QString &name, const QVariant &value)
 
 QString Controller::cacheFile()
 {
+    if (!Global::MyDir().exists()) {
+        Global::MyDir().mkpath(".");
+    }
+
     return Global::MyDir().absoluteFilePath("cache.json");
 }
 

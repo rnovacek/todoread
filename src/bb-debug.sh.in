@@ -1,0 +1,16 @@
+#!/bin/sh
+
+@QNX_HOST@/usr/bin/blackberry-deploy -debugNative -device @DEVICE@ -password @DEVICE_PASSWORD@ -launchApp todoread.bar | tee log
+
+pid=$(grep "result::" log | cut -d':' -f 3)
+
+echo "PID is $pid"
+
+@QNX_HOST@/usr/bin/ntoarm-gdb \
+    -ex "target qnx @DEVICE@:8000" \
+    -ex "file todoread" \
+    -ex "attach $pid"
+# -ex "set solib-search-path @QNX_TARGET@/lib/qt4/libins/xyz/:$BBNDK/target/qnx6/armle-v7/lib/:$BBNDK/target/qnx6/armle-v7/usr/lib" \
+
+@QNX_HOST@/usr/bin/blackberry-deploy -terminateApp -device @DEVICE@ -password @DEVICE_PASSWORD@ todoread.bar
+

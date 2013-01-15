@@ -1,0 +1,26 @@
+<?xml version='1.0' encoding='utf-8' standalone='no'?>
+<qnx xmlns="http://www.qnx.com/schemas/application/1.0">
+    <id>ID</id>
+    <name>todoread</name>
+    <versionNumber>1.0.0</versionNumber>
+    <description>Application for reading articles you've postponed</description>
+    <initialWindow>
+        <systemChrome>none</systemChrome>
+        <transparent>false</transparent>
+        <autoOrients>true</autoOrients>
+        <aspectRatio>landscape</aspectRatio>
+    </initialWindow>
+    <publisher>Radek Novacek</publisher>
+    <copyright>GPLv2+</copyright>
+    <env value="app/native/imports" var="QML_IMPORT_PATH"/>
+    <env value="app/native/plugins:/usr/lib/qt4/plugins" var="QT_PLUGIN_PATH"/>
+    <env value="app/native/lib:/usr/lib/qt4/lib/" var="LD_LIBRARY_PATH"/>
+    <action system="true">run_native</action>
+    <asset path="todoread" type="Qnx/Elf" entry="true">todoread</asset>
+    <asset path="@CMAKE_SOURCE_DIR@/todoread80.png">todoread.png</asset>
+    <asset path="@CMAKE_SOURCE_DIR@/bb">assets</asset>
+    <asset path="@CMAKE_SOURCE_DIR@/icons">assets</asset>
+    <icon>
+        <image>todoread.png</image>
+    </icon>
+</qnx>

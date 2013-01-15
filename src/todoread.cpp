@@ -1,21 +1,49 @@
 #include "todoread.h"
 
-#include <QDeclarativeView>
-#include <QDeclarativeEngine>
-#include <QDeclarativeContext>
-#include <QSettings>
-#include <QDir>
-#include <QDebug>
+#include "globals.h"
+#include "controller.h"
+
+#ifdef TODOREAD_CASCADES
+#include <bb/cascades/Application>
+#include <bb/cascades/QmlDocument>
+#include <bb/cascades/NavigationPane>
+using namespace bb::cascades;
+#include "bbreadmodel.h"
+#elif TODOREAD_QTQUICK
+#include <QtDeclarative/QDeclarativeView>
+#include <QtDeclarative/QDeclarativeEngine>
+#include <QtDeclarative/QDeclarativeContext>
+#include "qmlapplicationviewer.h"
+#else
+#include <QtCore/QCoreApplication>
+#include <QtGui/QTableView>
+#include <QtGui/QToolBar>
+#include <QtGui/QVBoxLayout>
+#endif
+#include <QtCore/QSettings>
+#include <QtCore/QDir>
+#include <QtCore/QDebug>
 #include <QtOpenGL/QGLWidget>
 #include <QtOpenGL/QGLFormat>
-#include <qplatformdefs.h>
+#include <QtGui/QMessageBox>
 
-#include "qmlapplicationviewer.h"
-#include "globals.h"
+#include "todoreadmodel.h"
 
-TodoRead::TodoRead(int &argc, char **argv):
-    QApplication(argc, argv)
+TodoRead::TodoRead(QObject *parent):
+    QObject(parent), rootContext(NULL)
 {
+#ifdef TODOREAD_CASCADES
+    QmlDocument *qml = QmlDocument::create("asset:///main.qml");
+    if (qml->hasErrors()) {
+        QString err;
+        foreach (const QDeclarativeError e, qml->errors()) {
+            err += e.toString();
+        }
+        QMessageBox::critical(NULL, "error", err);
+        return;
+    }
+    rootContext = qml->documentContext();
+#elif TODOREAD_QTQUICK
     QGLFormat format = QGLFormat::defaultFormat();
     format.setSampleBuffers(false);
     QGLWidget *glWidget = new QGLWidget(format);
@@ -24,24 +52,12 @@ TodoRead::TodoRead(int &argc, char **argv):
     glWidget->setAutoFillBackground(false);
 
     // Declarative view
-    m_view = new QmlApplicationViewer();
+    QmlApplicationViewer *m_view = new QmlApplicationViewer();
     m_view->setViewport(glWidget);
-
-    connect(m_view->engine(), SIGNAL(quit()), SLOT(quit()));
-
-    // Settings
-    m_config = new QSettings(Global::ConfigFile(), QSettings::IniFormat, this);
-    m_view->rootContext()->setContextProperty("config", m_config);
-
-    // Controller
-    m_controller = new Controller(m_view, m_config, this);
-    connect(m_controller, SIGNAL(quit()), SLOT(quit()));
-    connect(m_controller, SIGNAL(showGUI()), SLOT(showGUI()));
-    m_view->rootContext()->setContextProperty("controller", m_controller);
-
     m_view->setOrientation(QmlApplicationViewer::ScreenOrientationAuto);
+    rootContext = m_view->rootContext();
 
-    // Set qml source    
+    // Set qml source
     QDir dir(__FILE__);
     dir.cdUp();
     dir.cdUp();
@@ -54,32 +70,59 @@ TodoRead::TodoRead(int &argc, char **argv):
     }
     qDebug() << "TodoRead errors:" << m_view->errors();
 
-    connect(this, SIGNAL(aboutToQuit()), SLOT(aboutToQuitHandler()));
-
-#ifdef MEEGO_EDITION_HARMATTAN
     // On harmattan platform, GUI will be shown after checking if some account exists
-#else
-    qDebug() << "Showing GUI imediatelly";
-    showGUI();
-#endif
-}
 
-TodoRead::~TodoRead()
-{
-    delete m_view;
+    connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), SLOT(aboutToQuitHandler()));
+#else
+    connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), SLOT(aboutToQuitHandler()));
+#endif
+    // Settings
+    m_config = new QSettings(Global::ConfigFile(), QSettings::IniFormat, this);
+
+    // Controller
+    m_controller = new Controller(rootContext, m_config, this);
+    connect(m_controller, SIGNAL(showGUI()), SLOT(showGUI()));
+
+#ifdef TODOREAD_CASCADES
+    rootContext->setContextProperty("bbReadModel", new BBReadModel(m_controller->model()));
+    rootContext->setContextProperty("config", m_config);
+    rootContext->setContextProperty("controller", m_controller);
+    NavigationPane *navPane = qml->createRootObject<NavigationPane>();
+    if (navPane) {
+        Application::instance()->setScene(navPane);
+    }
+    showGUI();
+#elif TODOREAD_QTQUICK
+    rootContext->setContextProperty("config", m_config);
+    rootContext->setContextProperty("controller", m_controller);
+#else
+    QWidget *w = new QWidget();
+    QToolBar *bar = new QToolBar(w);
+    bar->addAction("Reload", m_controller, SLOT(reloadModel()));
+    QTableView *table = new QTableView(w);
+    table->setModel(m_controller->model());
+    QVBoxLayout *l = new QVBoxLayout();
+    l->addWidget(bar);
+    l->addWidget(table);
+    w->setLayout(l);
+    w->show();
+#endif
 }
 
 void TodoRead::showGUI()
 {
     // Main window
-#ifdef MEEGO_EDITION_HARMATTAN
+#ifdef TODOREAD_QTQUICK
     m_view->showFullScreen();
 #else
-    m_view->showNormal();
+    //m_view->showNormal();
 #endif
 }
 
 void TodoRead::aboutToQuitHandler()
 {
-    m_config->sync();
+    m_controller->save();
+#ifdef TODOREAD_CASCADES
+    Application::instance()->quit();
+#endif
 }

@@ -59,13 +59,13 @@ void DownloadThread::run()
 
         if (m_process->waitForFinished(30000)) {
             // Get newUrl from standard error
-            QByteArray stderr = m_process->readAllStandardError();
-            int start = stderr.indexOf(" -> \"");
+            QByteArray err = m_process->readAllStandardError();
+            int start = err.indexOf(" -> \"");
             if (start != -1) {
                 start += 5;
-                int end = stderr.indexOf("\"", start);
+                int end = err.indexOf("\"", start);
                 if (end != -1) {
-                    QString newUrl = QString::fromUtf8(stderr.mid(start, end - start));
+                    QString newUrl = QString::fromUtf8(err.mid(start, end - start));
                     emit itemDownloaded(item, QUrl::fromLocalFile(newUrl).toString());
                 } else {
                     emit itemDownloadFailed(item);
