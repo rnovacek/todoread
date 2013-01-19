@@ -61,6 +61,13 @@ if (${TARGET} STREQUAL "BLACKBERRY")
         DEPENDS todoread
     )
 
+    add_custom_target(release
+        ${QNX_HOST}/usr/bin/blackberry-nativepackager -sign -cskpass ${DEVICE_PASSWORD} -storepass ${DEVICE_PASSWORD} -package todoread.bar bar-descriptor.xml
+        COMMAND cp todoread.bar todoread-${VERSION}.bar
+        DEPENDS todoread
+    )
+
+
     add_custom_target(deploy
         ${QNX_HOST}/usr/bin/blackberry-deploy -installApp -device ${DEVICE} -password ${DEVICE_PASSWORD} todoread.bar
         DEPENDS pack
@@ -72,6 +79,3 @@ if (${TARGET} STREQUAL "BLACKBERRY")
         DEPENDS deploy
     )
 endif (${TARGET} STREQUAL "BLACKBERRY")
-
-# home/radek/bbndk/host_10_0_9_404/linux/x86/usr/bin/blackberry-nativepackager" -devMode -debugToken /home/radek/bbndk/debugtoken.bar -package /home/radek/app/todoread/todoread-build-BlackBerry_10-Default_build_Debug/src/todoread.bar /home/radek/app/todoread/todoread-build-BlackBerry_10-Default_build_Debug/bar-descriptor_bz4821.xml
-#/home/radek/bbndk/host_10_0_9_404/linux/x86/usr/bin/blackberry-deploy" -installApp -device 192.168.1.104 -password <hidden> /home/radek/app/todoread/todoread-build-BlackBerry_10-Default_build_Debug/src/todoread.bar

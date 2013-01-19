@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 2.8)
 
 project(todoread)
 
+set(VERSION 0.1.1)
+
 set(TARGETS "DESKTOP;HARMATTAN;BLACKBERRY")
 set(TARGET "DESKTOP" CACHE STRING "Target platform, select one of DESKTOP, HARMATTAN, BLACKBERRY")
 set_property(CACHE TARGET PROPERTY STRINGS ${TARGETS})

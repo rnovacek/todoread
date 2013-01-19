@@ -20,6 +20,8 @@ Q_DECL_EXPORT int main(int argc, char *argv[])
 #else
     QApplication app(argc, argv);
 #endif
+    app.setOrganizationName("RadekNovacek");
+    app.setApplicationName("TodoRead");
     TodoRead todoRead;
 #ifdef TODOREAD_CASCADES
     QObject::connect(&app, SIGNAL(manualExit()), &todoRead, SLOT(aboutToQuitHandler()));

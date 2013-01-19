@@ -1,17 +1,20 @@
 <?xml version='1.0' encoding='utf-8' standalone='no'?>
 <qnx xmlns="http://www.qnx.com/schemas/application/1.0">
-    <id>ID</id>
-    <name>todoread</name>
-    <versionNumber>1.0.0</versionNumber>
+    <id>com.example.todoread</id>
+    <name>Todo:Read</name>
+    <versionNumber>@VERSION@</versionNumber>
     <description>Application for reading articles you've postponed</description>
+    <author>Radek Novacek</author>
+    <publisher>Radek Novacek</publisher>
+    <copyright>GPLv2+</copyright>
+    <platformVersion>3.0.0</platformVersion>
+    <permission>access_internet</permission>
     <initialWindow>
         <systemChrome>none</systemChrome>
         <transparent>false</transparent>
         <autoOrients>true</autoOrients>
         <aspectRatio>landscape</aspectRatio>
     </initialWindow>
-    <publisher>Radek Novacek</publisher>
-    <copyright>GPLv2+</copyright>
     <env value="app/native/imports" var="QML_IMPORT_PATH"/>
     <env value="app/native/plugins:/usr/lib/qt4/plugins" var="QT_PLUGIN_PATH"/>
     <env value="app/native/lib:/usr/lib/qt4/lib/" var="LD_LIBRARY_PATH"/>
